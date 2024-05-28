@@ -14,7 +14,8 @@ class Config:
     epsilon_decay = 0.995  # Decay rate for exploration probability
     tau = 0.001
     num_episodes = 20000
-    runtime = 1
+    runtime = 5
+    action_duration = 4000 # Hold action for 2000 steps
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)

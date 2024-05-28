@@ -15,7 +15,8 @@ runtime = config.runtime
 Vinit = config.Vinit
 Iinit = config.Iinit
 Vref = config.Vref
-
+device = config.device
+action_duration = config.action_duration
 
 
 def run_simulations(model, ips_str):
@@ -59,7 +60,7 @@ def run_simulation_episode(
     t = []
     iteration = 0
 
-    action_duration = 200  # Hold action for 1000 steps
+    # action_duration = 2000  # Hold action for 1000 steps
 
     while time < runtime:
         for _ in range(action_duration):
