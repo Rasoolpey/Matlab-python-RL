@@ -1,8 +1,8 @@
 # Reward calculation functions
-def calculate_stability_reward(x):
+def calculate_stability_reward(Vref,x):
     V = x[0]
-    Vref = 5.0
-    deviation = V - Vref
+    vref = Vref
+    deviation = V - vref
     penalty = deviation**2
     return -penalty
 
@@ -17,9 +17,9 @@ def calculate_convergence_reward(current_deviation, prev_deviation):
 def calculate_time_reward(t, max_time):
     return -t / max_time
 
-def composite_reward(x, u, prev_u, prev_deviation, t, max_time):
-    current_deviation = abs(x[0] - 5.0)
-    stability = calculate_stability_reward(x)
+def composite_reward(Vref, x, u, prev_u, prev_deviation, t, max_time):
+    current_deviation = abs(x[0] - Vref)
+    stability = calculate_stability_reward(Vref,x)
     efficiency = calculate_efficiency_reward(u, prev_u)
     convergence = calculate_convergence_reward(current_deviation, prev_deviation)
     time_penalty = calculate_time_reward(t, max_time)
@@ -35,14 +35,14 @@ def composite_reward(x, u, prev_u, prev_deviation, t, max_time):
         + weight_convergence * convergence
         + weight_time * time_penalty
     )
-
+ # plt.savefig(f"plots/episode_number_{episode}.png", dpi=600)
     return total_reward, current_deviation
 
 # Done checking class
 class DoneChecker:
-    def __init__(self):
+    def __init__(self, Vref=7.5):
         self.t0 = None
-        self.desirable_band = [4.8, 5.2]
+        self.desirable_band = [0.97*Vref, 1.03*Vref]
 
     def isdone(self, x, t):
         V = x[0]
@@ -64,9 +64,10 @@ if __name__ == "__main__":
     prev_deviation = 0.2  # Example previous deviation
     t = 10  # Example time
     max_time = 100  # Example max time
+    Vref = 5.0  # Example reference voltage
 
     # Calculate composite reward
-    reward, current_deviation = composite_reward(x, u, prev_u, prev_deviation, t, max_time)
+    reward, current_deviation = composite_reward(Vref, x, u, prev_u, prev_deviation, t, max_time)
     print("Composite Reward:", reward)
 
     # Create an instance of DoneChecker

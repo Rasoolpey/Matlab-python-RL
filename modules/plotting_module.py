@@ -1,7 +1,5 @@
 import os
-
 import matplotlib.pyplot as plt
-
 
 def plot_data(time, Vo, duty_cycle, cost, episode, total_reward):
     # Ensure the plots directory exists
@@ -38,7 +36,8 @@ def plot_data(time, Vo, duty_cycle, cost, episode, total_reward):
 
     # Adjust layout and save the figure with high resolution
     plt.tight_layout(rect=[0, 0, 1, 0.96])
-    plt.savefig(f"plots/episode_number_{episode}.png", dpi=600)
+    # plt.savefig(f"plots/episode_number_{episode}.png", dpi=600)
+    plt.savefig(f"plots/episode_number_{episode}.svg", format='svg')
     plt.close()
 
 

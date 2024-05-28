@@ -6,9 +6,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from networks_module import Actor, Critic
-from config_module import Config
-
+from modules.networks_module import Actor, Critic
+from modules.config_module import Config
 
 config = Config()
 device = config.device
@@ -28,6 +27,7 @@ state_dim = config.state_dim
 action_dim = config.action_dim
 max_action = config.max_action
 
+print(f'using device:', device)
 
 actor = Actor(state_dim, action_dim, max_action).to(device)
 actor_target = Actor(state_dim, action_dim, max_action).to(device)
@@ -143,3 +143,14 @@ def select_action(state, noise_scale=0.1):
     epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
     return action.item()
+
+
+def train_network(
+    replay_buffer, pause_event, train_event, lock, batch_size=512, terminate_event=None
+):
+    while not (terminate_event and terminate_event.is_set()):
+        pause_event.wait()  # Wait for pause signal
+        with lock:
+            train_model(replay_buffer, batch_size=batch_size)
+        train_event.set()  # Signal that training is done
+        pause_event.wait()  # Wait for resume signal

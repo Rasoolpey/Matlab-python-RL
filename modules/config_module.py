@@ -18,7 +18,20 @@ class Config:
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)
-    Vref = 5
+    Vref = 7.5
+
+    ips = [
+    "127.0.0.100",
+    "127.0.0.101",
+    "127.0.0.102",
+    "127.0.0.103",
+    "127.0.0.104",
+    "127.0.0.105",
+    "127.0.0.106",
+    "127.0.0.107",
+    ]
+
+    ips_str = ",".join(ips) # Join IP addresses into a single string
 
     state_dim = 2
     action_dim = 1
