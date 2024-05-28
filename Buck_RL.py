@@ -12,23 +12,10 @@ from modules.config_module import Config
 from modules.simulation_module import run_simulations, run_simulation_episode
 
 
-# Define the range of IP addresses
-ips = [
-    "127.0.0.100",
-    "127.0.0.101",
-    "127.0.0.102",
-    "127.0.0.103",
-    "127.0.0.104",
-    "127.0.0.105",
-    "127.0.0.106",
-    "127.0.0.107",
-]
-
-ips_str = ",".join(ips)  # Join IP addresses into a single string
-
-
 config = Config()
 device = config.device
+ips = config.ips
+ips_str = config.ips_str
 DISCOUNT = config.DISCOUNT
 LEARNING_RATE = config.LEARNING_RATE
 epsilon = config.epsilon
