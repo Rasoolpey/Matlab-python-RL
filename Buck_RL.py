@@ -15,6 +15,9 @@ import torch.nn as nn
 import torch.optim as optim
 from modules.plotting_module import plot_data
 from modules.tcp_module import receive_data, send_data, websocket, TCP_PORT
+from modules.decision_evaluation_module import composite_reward, DoneChecker
+from modules.networks_module import Actor, Critic
+
 
 # Check for CUDA
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,36 +56,6 @@ Vref = 5
 
 # Define Actor and Critic networks
 
-
-class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, max_action):
-        super(Actor, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128, action_dim)
-        self.max_action = max_action
-
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = torch.tanh(self.fc3(x)) * self.max_action
-        return x
-
-
-class Critic(nn.Module):
-    def __init__(self, state_dim, action_dim):
-        super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim + action_dim, 64)
-        self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128, 1)
-
-    def forward(self, state, action):
-        x = torch.relu(self.fc1(torch.cat([state, action], dim=1)))
-        x = torch.relu(self.fc2(x))
-        q_value = self.fc3(x)
-        return q_value
-
-
 # Initialize networks
 state_dim = 2
 action_dim = 1
@@ -99,6 +72,7 @@ critic_target.load_state_dict(critic.state_dict())
 # Optimizers
 actor_optimizer = optim.Adam(actor.parameters(), lr=LEARNING_RATE)
 critic_optimizer = optim.Adam(critic.parameters(), lr=LEARNING_RATE)
+
 
 # Experience Replay
 
@@ -136,69 +110,7 @@ class ReplayBuffer:
 
 replay_buffer = ReplayBuffer()
 
-# Define reward functions
 
-
-def reward_stability(x):
-    V = x[0]
-    Vref = 5.0
-    deviation = V - Vref
-    penalty = deviation**2
-    return -penalty
-
-
-def reward_efficiency(u, prev_u):
-    control_effort = (u - prev_u) ** 2
-    return -0.01 * control_effort
-
-
-def reward_convergence(current_deviation, prev_deviation):
-    improvement = prev_deviation - current_deviation
-    return improvement
-
-
-def reward_time(t, max_time):
-    return -t / max_time
-
-
-def composite_reward(x, u, prev_u, prev_deviation, t, max_time):
-    current_deviation = abs(x[0] - 5.0)
-    stability = reward_stability(x)
-    efficiency = reward_efficiency(u, prev_u)
-    convergence = reward_convergence(current_deviation, prev_deviation)
-    time_penalty = reward_time(t, max_time)
-
-    weight_stability = 1.0
-    weight_efficiency = 0.001
-    weight_convergence = 0.5
-    weight_time = 1.5  # Adjust this weight according to your preference
-
-    total_reward = (
-        weight_stability * stability
-        + weight_efficiency * efficiency
-        + weight_convergence * convergence
-        + weight_time * time_penalty
-    )
-
-    return total_reward, current_deviation
-
-
-# Define done function
-class DoneChecker:
-    def __init__(self):
-        self.t0 = None
-        self.desirable_band = [4.8, 5.2]
-
-    def isdone(self, x, t):
-        V = x[0]
-        if V >= self.desirable_band[0] and V <= self.desirable_band[1]:
-            if self.t0 is None:
-                self.t0 = t
-            elif t - self.t0 >= 0.5:
-                return True
-        else:
-            self.t0 = None
-        return False
 
 
 done_checker = DoneChecker()
