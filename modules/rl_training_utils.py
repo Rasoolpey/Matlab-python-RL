@@ -26,6 +26,7 @@ Vref = config.Vref
 state_dim = config.state_dim
 action_dim = config.action_dim
 max_action = config.max_action
+non_zero_ratio=config.non_zero_ratio
 
 print(f'using device:', device)
 
@@ -72,6 +73,9 @@ class ReplayBuffer:
 
     def __len__(self):
         return len(self.buffer)
+    
+    def clear(self):
+        self.buffer = []
 
 
 
@@ -146,11 +150,12 @@ def select_action(state, noise_scale=0.1):
 
 
 def train_network(
-    replay_buffer, pause_event, train_event, lock, batch_size=512, terminate_event=None
+    replay_buffer, lock, batch_size=512, terminate_event=None, device=device
 ):
-    while not (terminate_event and terminate_event.is_set()):
-        pause_event.wait()  # Wait for pause signal
+    if terminate_event is not None and terminate_event.is_set():
+        print("Training skipped because terminate event is set.")
+    else:
         with lock:
-            train_model(replay_buffer, batch_size=batch_size)
-        train_event.set()  # Signal that training is done
-        pause_event.wait()  # Wait for resume signal
+            train_model(replay_buffer, batch_size=batch_size, non_zero_ratio=non_zero_ratio, device=device)
+        replay_buffer.clear()  # Clear the buffer after training.
+        # print("Training done.")

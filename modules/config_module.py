@@ -13,6 +13,8 @@ class Config:
     epsilon_min = 0.01  # Minimum exploration probability
     epsilon_decay = 0.995  # Decay rate for exploration probability
     tau = 0.001
+    non_zero_ratio=0.8
+    training_batch_size = 8
     num_episodes = 20000
     runtime = 5
     action_duration = 4000 # Hold action for 2000 steps

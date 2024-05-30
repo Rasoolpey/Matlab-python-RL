@@ -1,6 +1,7 @@
 
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Barrier, Lock
 
 from modules.config_module import Config
 from modules.decision_evaluation_module import DoneChecker
@@ -16,25 +17,24 @@ Vref = config.Vref
 ips = config.ips
 ips_str = config.ips_str
 device = config.device
-
+training_batch_size = config.training_batch_size
+lock = Lock()
 
 # Experience Replay
 replay_buffer = ReplayBuffer()
 
-
+barrier = Barrier(parties=len(ips), action=lambda: train_network(replay_buffer, lock, batch_size=training_batch_size, device=device))
 # Main execution
+
 if __name__ == "__main__":
     model = "Buck_Converter"
     episode_per_ip = num_episodes // len(ips)
     done_checker = DoneChecker(Vref)
-    pause_event = threading.Event()
-    train_event = threading.Event()
-    lock = threading.Lock()
-    terminate_event = threading.Event()
+    # pause_event = threading.Event()
+    # train_event = threading.Event()
+    # lock = threading.Lock()
+    # terminate_event = threading.Event()
     
-    pause_event.set()
-    train_event.set()
-
     for batch in range(episode_per_ip):
         print(f"Starting batch {batch}")
 
@@ -63,11 +63,11 @@ if __name__ == "__main__":
         best_rewardval = []
         episode = 0
 
-        training_thread = threading.Thread(
-            target=train_network,
-            args=(replay_buffer, pause_event, train_event, lock, 64, terminate_event),
-        )
-        training_thread.start()
+        # training_thread = threading.Thread(
+        #     target=train_network,
+        #     args=(replay_buffer, lock,training_batch_size, terminate_event, device),
+        # )
+        # training_thread.start()
 
         with ThreadPoolExecutor(max_workers=len(ips)) as executor:
             futures = [
@@ -77,9 +77,8 @@ if __name__ == "__main__":
                     ip,
                     replay_buffer,
                     batch * len(ips) + i,
-                    pause_event,
-                    train_event,
                     lock,
+                    barrier,
                 )
                 for i, (conn, ip) in enumerate(zip(connections, ips))
             ]
@@ -95,7 +94,7 @@ if __name__ == "__main__":
 
         matlab_thread.join()
         terminate_event.set()
-        training_thread.join()
+        # training_thread.join()
 
         # Plot the best episode in the current batch
         plot_data(

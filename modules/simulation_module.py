@@ -40,9 +40,7 @@ def run_simulations(model, ips_str):
 # Function to run a simulation episode
 
 
-def run_simulation_episode(
-    conn, ip, replay_buffer, episode, pause_event, train_event, lock
-):
+def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
     print(f"Using established connection to {ip}:{TCP_PORT}")
 
     # Reset the environment and get the initial state
@@ -92,18 +90,22 @@ def run_simulation_episode(
 
         with lock:
             replay_buffer.push(state, action, reward, next_state, False)
+            
 
+        
         state = next_state
 
         # if iteration % 200 == 0:
         #     pause_event.clear()  # Signal to pause
         #     train_event.wait()  # Wait for the training to be done
         #     pause_event.set()  # Signal to resume
-        pause_event.clear()  # Signal to pause
-        train_event.wait()  # Wait for the training to be done
-        pause_event.set()  # Signal to resume
+        # pause_event.clear()  # Signal to pause
+        # train_event.wait()  # Wait for the training to be done
+        # pause_event.set()  # Signal to resume
+        barrier.wait()
         # Select a new action after holding the previous one for 1000 steps
         action = select_action(state)
+        # print(f"Selected new action: {action}")
 
     conn.close()
     print(f"Completed episode {episode} for IP {ip}")
