@@ -88,7 +88,7 @@ def soft_update(target, source, tau):
 
 
 def train_model(
-    replay_buffer, batch_size=64, non_zero_ratio=0.8, csv_file="actions_log.csv", device="cpu"
+    replay_buffer, batch_size=64, non_zero_ratio=0.8, csv_file="actions_log.csv", device=device
 ):
     if len(replay_buffer) < batch_size:
         return

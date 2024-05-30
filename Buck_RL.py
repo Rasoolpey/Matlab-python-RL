@@ -19,20 +19,19 @@ device = config.device
 
 
 # Experience Replay
-
+replay_buffer = ReplayBuffer()
 
 
 # Main execution
 if __name__ == "__main__":
     model = "Buck_Converter"
-    replay_buffer = ReplayBuffer()
     episode_per_ip = num_episodes // len(ips)
     done_checker = DoneChecker(Vref)
     pause_event = threading.Event()
     train_event = threading.Event()
     lock = threading.Lock()
     terminate_event = threading.Event()
-
+    
     pause_event.set()
     train_event.set()
 

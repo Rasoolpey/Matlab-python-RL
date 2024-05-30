@@ -5,8 +5,8 @@ import torch.optim as optim
 
 
 class Config:
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     DISCOUNT = 0.99
     LEARNING_RATE = 0.001
     epsilon = 1.0  # Initial exploration probability
