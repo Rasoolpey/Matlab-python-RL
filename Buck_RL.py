@@ -93,7 +93,7 @@ if __name__ == "__main__":
                     episode = Episode
 
         matlab_thread.join()
-        terminate_event.set()
+        # terminate_event.set()
         # training_thread.join()
 
         # Plot the best episode in the current batch
