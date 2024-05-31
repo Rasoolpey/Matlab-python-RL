@@ -127,6 +127,7 @@ def train_model(
     # Soft update target networks
     soft_update(actor_target, actor, tau)
     soft_update(critic_target, critic, tau)
+   
 
 
 
