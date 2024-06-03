@@ -44,7 +44,10 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
     print(f"Using established connection to {ip}:{TCP_PORT}")
 
     # Reset the environment and get the initial state
-    state = np.array([Vinit, Iinit])
+    state = np.array([Vinit, Iinit, 0, 0])
+    next_state = np.array([Vinit, Iinit])
+    prev_state = np.array([Vinit, Iinit, 0, 0])
+    dev_state = np.array([0, 0])
     total_reward = 0
     time = 0
     action = select_action(state)
@@ -58,18 +61,20 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
     t = []
     iteration = 0
 
-    # action_duration = 2000  # Hold action for 1000 steps
 
     while time < runtime:
         for _ in range(action_duration):
             send_data(conn, action)
             V, IL, Time = receive_data(conn)
             next_state = np.array([V, IL])
-
+            dev_state = next_state - prev_state[:2]
             # if iteration % 10 == 0:
             #     t.append(Time)
             #     Vo.append(V)
             #     rewardval.append(action)
+            # Update the state to include rate of change
+            state = np.concatenate([next_state, dev_state])
+
             t.append(Time)
             Vo.append(V)
             duty_cycle.append(action)
@@ -87,14 +92,10 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
         prev_dev_step = current_deviation
         prev_u_step = action
         total_reward += reward
-
         with lock:
-            replay_buffer.push(state, action, reward, next_state, False)
+            replay_buffer.push(prev_state, action, reward, state, False)
             
-
-        
-        state = next_state
-
+        prev_state = state
         # if iteration % 200 == 0:
         #     pause_event.clear()  # Signal to pause
         #     train_event.wait()  # Wait for the training to be done
@@ -102,7 +103,9 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
         # pause_event.clear()  # Signal to pause
         # train_event.wait()  # Wait for the training to be done
         # pause_event.set()  # Signal to resume
+        # print(f"Completed iteration {iteration} for IP {ip}")
         barrier.wait()
+        # print(f"Continuing to next iteration for IP {ip}")
         # Select a new action after holding the previous one for 1000 steps
         action = select_action(state)
         # print(f"Selected new action: {action}")

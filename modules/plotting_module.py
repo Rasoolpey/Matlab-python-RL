@@ -1,5 +1,5 @@
-# import os
-# import matplotlib.pyplot as plt
+import os
+import matplotlib.pyplot as plt
 
 # def plot_data(time, Vo, duty_cycle, cost, episode, total_reward):
 #     # Ensure the plots directory exists
@@ -55,8 +55,6 @@
 #     plot_data(time, Vo, duty_cycle, cost, episode, total_reward)
 
 
-import os
-import matplotlib.pyplot as plt
 
 def plot_data(time, Vo, duty_cycle, cost, episode, total_reward):
     # Ensure the plots directory exists

@@ -13,11 +13,9 @@ class Config:
     epsilon_min = 0.01  # Minimum exploration probability
     epsilon_decay = 0.995  # Decay rate for exploration probability
     tau = 0.001
-    non_zero_ratio=0.8
-    training_batch_size = 8
     num_episodes = 20000
-    runtime = 5
-    action_duration = 40 # Hold action for 2000 steps
+    runtime = 1
+    action_duration = 50 # Hold action for 2000 steps
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)
@@ -38,7 +36,11 @@ class Config:
 
     ips_str = ",".join(ips) # Join IP addresses into a single string
 
-    state_dim = 2
+    buffer_capacity = len(ips) #1000000
+    non_zero_ratio=0
+    training_batch_size = len(ips)
+
+    state_dim = 4
     action_dim = 1
     max_action = 1.0
     actor = Actor(state_dim, action_dim, max_action).to(device)

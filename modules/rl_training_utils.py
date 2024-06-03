@@ -26,7 +26,8 @@ Vref = config.Vref
 state_dim = config.state_dim
 action_dim = config.action_dim
 max_action = config.max_action
-non_zero_ratio=config.non_zero_ratio
+buffer_capacity = config.buffer_capacity
+
 
 print(f'using device:', device)
 
@@ -43,31 +44,34 @@ critic_target.load_state_dict(critic.state_dict())
 actor_optimizer = optim.Adam(actor.parameters(), lr=LEARNING_RATE)
 critic_optimizer = optim.Adam(critic.parameters(), lr=LEARNING_RATE)
 
-
 class ReplayBuffer:
-    def __init__(self, capacity=100000):
+    def __init__(self, capacity=buffer_capacity):
         self.buffer = deque(maxlen=capacity)
 
     def push(self, state, action, reward, next_state, done):
         self.buffer.append((state, action, reward, next_state, done))
 
     def sample(self, batch_size, non_zero_ratio=0.8):
-        non_zero_samples = [
-            experience for experience in self.buffer if experience[1] != 0
-        ]
-        zero_samples = [experience for experience in self.buffer if experience[1] == 0]
+        if non_zero_ratio == 0:  # Check if non_zero_ratio is set to zero
+            samples = random.sample(self.buffer, min(len(self.buffer), batch_size))
+        else:
+            non_zero_samples = [
+                experience for experience in self.buffer if experience[1] != 0
+            ]
+            zero_samples = [experience for experience in self.buffer if experience[1] == 0]
 
-        non_zero_sample_size = int(batch_size * non_zero_ratio)
-        zero_sample_size = batch_size - non_zero_sample_size
+            non_zero_sample_size = int(batch_size * non_zero_ratio)
+            zero_sample_size = batch_size - non_zero_sample_size
 
-        non_zero_sample_size = min(len(non_zero_samples), non_zero_sample_size)
-        zero_sample_size = min(len(zero_samples), zero_sample_size)
+            non_zero_sample_size = min(len(non_zero_samples), non_zero_sample_size)
+            zero_sample_size = min(len(zero_samples), zero_sample_size)
 
-        samples = random.sample(non_zero_samples, non_zero_sample_size) + random.sample(
-            zero_samples, zero_sample_size
-        )
+            samples = random.sample(non_zero_samples, non_zero_sample_size) + random.sample(
+                zero_samples, zero_sample_size
+            )
+        
         random.shuffle(samples)
-
+        
         states, actions, rewards, next_states, dones = map(np.array, zip(*samples))
         return states, actions, rewards, next_states, dones
 
@@ -75,8 +79,7 @@ class ReplayBuffer:
         return len(self.buffer)
     
     def clear(self):
-        self.buffer = []
-
+        self.buffer.clear()  # Use clear method of deque
 
 
 
@@ -91,15 +94,11 @@ def soft_update(target, source, tau):
 # Training DDPG model
 
 
-def train_model(
-    replay_buffer, batch_size=64, non_zero_ratio=0.8, csv_file="actions_log.csv", device=device
-):
+def train_model(replay_buffer, batch_size=64, non_zero_ratio=0.8, csv_file="actions_log.csv", device=device):
     if len(replay_buffer) < batch_size:
         return
-    states, actions, rewards, next_states, dones = replay_buffer.sample(
-        batch_size, non_zero_ratio
-    )
-
+    states, actions, rewards, next_states, dones = replay_buffer.sample(batch_size, non_zero_ratio)
+    # print(f"Sampled states shape: {states.shape}, Sampled next states shape: {next_states.shape}")
     states = torch.FloatTensor(states).to(device)
     next_states = torch.FloatTensor(next_states).to(device)
     actions = torch.FloatTensor(actions).unsqueeze(1).to(device)
@@ -127,6 +126,7 @@ def train_model(
     # Soft update target networks
     soft_update(actor_target, actor, tau)
     soft_update(critic_target, critic, tau)
+    replay_buffer.clear()
 
 
 
@@ -150,12 +150,12 @@ def select_action(state, noise_scale=0.1):
 
 
 def train_network(
-    replay_buffer, lock, batch_size=512, terminate_event=None, device=device
+    replay_buffer, lock, batch_size=512, terminate_event=None, device=device, non_zero_ratio=0.8
 ):
     if terminate_event is not None and terminate_event.is_set():
         print("Training skipped because terminate event is set.")
     else:
         with lock:
             train_model(replay_buffer, batch_size=batch_size, non_zero_ratio=non_zero_ratio, device=device)
-        replay_buffer.clear()  # Clear the buffer after training.
+          # Clear the buffer after training.
         # print("Training done.")
