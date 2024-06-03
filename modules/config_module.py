@@ -17,7 +17,7 @@ class Config:
     training_batch_size = 8
     num_episodes = 20000
     runtime = 5
-    action_duration = 4000 # Hold action for 2000 steps
+    action_duration = 40 # Hold action for 2000 steps
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)
@@ -32,6 +32,8 @@ class Config:
     "127.0.0.105",
     "127.0.0.106",
     "127.0.0.107",
+    "127.0.0.108",
+    "127.0.0.109",
     ]
 
     ips_str = ",".join(ips) # Join IP addresses into a single string
