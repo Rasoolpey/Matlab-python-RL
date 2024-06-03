@@ -32,6 +32,8 @@ class Config:
     "127.0.0.105",
     "127.0.0.106",
     "127.0.0.107",
+    "127.0.0.108",
+    "127.0.0.109",
     ]
 
     ips_str = ",".join(ips) # Join IP addresses into a single string
