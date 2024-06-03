@@ -17,7 +17,7 @@ class Config:
     training_batch_size = 8
     num_episodes = 20000
     runtime = 5
-    action_duration = 4000 # Hold action for 2000 steps
+    action_duration = 500 # Hold action for 2000 steps
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)

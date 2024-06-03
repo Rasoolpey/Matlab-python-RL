@@ -25,7 +25,7 @@ def composite_reward(Vref, x, u, prev_u, prev_deviation, t, max_time):
     time_penalty = calculate_time_reward(t, max_time)
 
     weight_stability = 1.0
-    weight_efficiency = 0.001
+    weight_efficiency = 1.0
     weight_convergence = 0.5
     weight_time = 1.5  # Adjust this weight according to your preference
 
