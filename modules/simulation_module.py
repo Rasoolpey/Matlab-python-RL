@@ -18,6 +18,7 @@ Vref = config.Vref
 device = config.device
 action_duration = config.action_duration
 batch_coefficient = config.batch_coefficient
+ou_noise = config.ou_noise
 
 
 def run_simulations(model, ips_str):
@@ -51,7 +52,7 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, batc
     dev_state = np.array([0, 0])
     total_reward = 0
     time = 0
-    action = select_action(state)
+    action = select_action(state, ou_noise)
     prev_deviation = 0
     prev_u = 0
     prev_u_step = 0
@@ -109,7 +110,8 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, batc
             barrier.wait()
         # print(f"Continuing to next iteration for IP {ip}")
         # Select a new action after holding the previous one for 1000 steps
-        action = select_action(state)
+        # action = select_action(state)
+        action = select_action(state, ou_noise)
         # print(f"Selected new action: {action}")
 
     conn.close()

@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, max_action):
@@ -29,4 +30,19 @@ class Critic(nn.Module):
         return q_value
 
 
+class OUNoise:
+    def __init__(self, action_dimension, mu=0, theta=0.15, sigma=0.2):
+        self.mu = mu
+        self.theta = theta
+        self.sigma = sigma
+        self.action_dimension = action_dimension
+        self.reset()
 
+    def reset(self):
+        self.state = np.ones(self.action_dimension) * self.mu
+
+    def noise(self):
+        x = self.state
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dimension)
+        self.state = x + dx
+        return self.state

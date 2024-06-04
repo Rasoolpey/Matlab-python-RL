@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from modules.networks_module import Actor, Critic
+from modules.networks_module import Actor, Critic, OUNoise
 import torch.optim as optim
 
 
@@ -43,6 +43,7 @@ class Config:
 
     state_dim = 4
     action_dim = 1
+    ou_noise = OUNoise(action_dimension=action_dim)
     max_action = 1.0
     actor = Actor(state_dim, action_dim, max_action).to(device)
     actor_target = Actor(state_dim, action_dim, max_action).to(device)

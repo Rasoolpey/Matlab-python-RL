@@ -1,7 +1,6 @@
 
 import random
 from collections import deque
-from concurrent.futures import ThreadPoolExecutor, as_completed, wait
 import numpy as np
 import torch
 import torch.nn as nn
@@ -129,24 +128,40 @@ def train_model(replay_buffer, batch_size=64, non_zero_ratio=0.8, csv_file="acti
     replay_buffer.clear()
 
 
-
 # Select action with exploration noise
-def select_action(state, noise_scale=0.1):
+def select_action(state, ou_noise, noise_scale=0.1, epsilon_decay=0.995, epsilon_min=0.01):
     global epsilon
     state = torch.FloatTensor(state).unsqueeze(0).to(device)
 
     if np.random.rand() < epsilon:
         # Exploration: choose a random action
-        action = np.random.uniform(0, 1, action_dim)
+        action = np.random.uniform(0, 1, ou_noise.action_dimension)
     else:
         # Exploitation: choose the action suggested by the actor network
         action = actor(state).cpu().detach().numpy()[0]
-        action = np.clip(action + noise_scale * np.random.randn(action_dim), 0, 1)
+        noise = ou_noise.noise() * noise_scale
+        action = np.clip(action + noise, 0, 1)  # Applying OU noise
 
     # Decay epsilon
     epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
-    return action.item()
+    return action
+# def select_action(state, noise_scale=0.1):
+#     global epsilon
+#     state = torch.FloatTensor(state).unsqueeze(0).to(device)
+
+#     if np.random.rand() < epsilon:
+#         # Exploration: choose a random action
+#         action = np.random.uniform(0, 1, action_dim)
+#     else:
+#         # Exploitation: choose the action suggested by the actor network
+#         action = actor(state).cpu().detach().numpy()[0]
+#         action = np.clip(action + noise_scale * np.random.randn(action_dim), 0, 1)
+
+#     # Decay epsilon
+#     epsilon = max(epsilon_min, epsilon * epsilon_decay)
+
+#     return action.item()
 
 
 def train_network(
