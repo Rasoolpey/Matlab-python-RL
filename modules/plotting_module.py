@@ -80,7 +80,7 @@ def plot_data(time, Vo, duty_cycle, cost, episode, total_reward):
     # Third subplot: Cost
     ax3.set_title("Cost Over Time")
     ax3.plot(time, cost, color="green", label="Cost")
-    ax3.set_xlabel("Time")
+    ax3.set_xlabel("Time (s)")
     ax3.set_ylabel("Cost", color="green")
     ax3.tick_params(axis="y", colors="green")
 

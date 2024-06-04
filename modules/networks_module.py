@@ -31,7 +31,7 @@ class Critic(nn.Module):
 
 
 class OUNoise:
-    def __init__(self, action_dimension, mu=0, theta=0.15, sigma=0.2):
+    def __init__(self, action_dimension, mu=0, theta=0.001, sigma=0.00925):
         self.mu = mu
         self.theta = theta
         self.sigma = sigma
@@ -46,3 +46,15 @@ class OUNoise:
         dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dimension)
         self.state = x + dx
         return self.state
+    
+
+
+if __name__ == '__main__':
+    # Example usage
+    ou_noise = OUNoise()
+    current_value = 0.5
+    for _ in range(10):
+        noise = ou_noise.sample()
+        current_value += noise  # Modifying some input value by adding noise
+        print(current_value)
+    

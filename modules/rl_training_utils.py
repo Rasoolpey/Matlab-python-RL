@@ -133,7 +133,7 @@ def select_action(state, ou_noise, noise_scale=0.1, epsilon_decay=0.995, epsilon
     global epsilon
     state = torch.FloatTensor(state).unsqueeze(0).to(device)
 
-    if np.random.rand() < epsilon:
+    if np.random.rand() < epsilon and epsilon > 0:
         # Exploration: choose a random action
         action = np.random.uniform(0, 1, ou_noise.action_dimension)
     else:
@@ -143,9 +143,9 @@ def select_action(state, ou_noise, noise_scale=0.1, epsilon_decay=0.995, epsilon
         action = np.clip(action + noise, 0, 1)  # Applying OU noise
 
     # Decay epsilon
-    epsilon = max(epsilon_min, epsilon * epsilon_decay)
+    # epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
-    return action
+    return action.item()
 # def select_action(state, noise_scale=0.1):
 #     global epsilon
 #     state = torch.FloatTensor(state).unsqueeze(0).to(device)

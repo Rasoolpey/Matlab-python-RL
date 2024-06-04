@@ -9,12 +9,12 @@ class Config:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     DISCOUNT = 0.99
     LEARNING_RATE = 0.001
-    epsilon = 1.0  # Initial exploration probability
+    epsilon = 0.0  # Initial exploration probability
     epsilon_min = 0.01  # Minimum exploration probability
     epsilon_decay = 0.995  # Decay rate for exploration probability
     tau = 0.001
     num_episodes = 20000
-    runtime = 1
+    runtime = 5
     action_duration = 1 # Hold action for 2000 steps
     Vinit = 0
     Iinit = 0
