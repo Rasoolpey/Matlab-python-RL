@@ -14,8 +14,8 @@ class Config:
     epsilon_decay = 0.995  # Decay rate for exploration probability
     tau = 0.001
     num_episodes = 20000
-    runtime = 5
-    action_duration = 1 # Hold action for 2000 steps
+    runtime = 1
+    action_duration = 50 # 50 is equivalent to 1 cycle of pwm so less than that is not possible
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)
