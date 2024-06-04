@@ -144,7 +144,7 @@ def select_action(state, ou_noise, noise_scale=0.1, epsilon_decay=0.995, epsilon
         action = np.clip(action + noise, 0, 1)  # Applying OU noise
 
     # Decay epsilon
-    # epsilon = max(epsilon_min, epsilon * epsilon_decay)
+    epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
     return action.item()
 # def select_action(state, noise_scale=0.1):

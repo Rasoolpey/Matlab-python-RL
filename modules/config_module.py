@@ -38,7 +38,7 @@ class Config:
 
     
     non_zero_ratio=0
-    batch_coefficient = 10
+    batch_coefficient = 1
     training_batch_size = batch_coefficient*len(ips)
     training_itteration = batch_coefficient*action_duration
     buffer_capacity = batch_coefficient*len(ips) #1000000
