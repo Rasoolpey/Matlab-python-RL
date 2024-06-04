@@ -17,6 +17,7 @@ Iinit = config.Iinit
 Vref = config.Vref
 device = config.device
 action_duration = config.action_duration
+batch_coefficient = config.batch_coefficient
 
 
 def run_simulations(model, ips_str):
@@ -40,7 +41,7 @@ def run_simulations(model, ips_str):
 # Function to run a simulation episode
 
 
-def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
+def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, batch_coefficient=batch_coefficient):
     print(f"Using established connection to {ip}:{TCP_PORT}")
 
     # Reset the environment and get the initial state
@@ -104,7 +105,8 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier):
         # train_event.wait()  # Wait for the training to be done
         # pause_event.set()  # Signal to resume
         # print(f"Completed iteration {iteration} for IP {ip}")
-        barrier.wait()
+        if iteration % batch_coefficient == 0:
+            barrier.wait()
         # print(f"Continuing to next iteration for IP {ip}")
         # Select a new action after holding the previous one for 1000 steps
         action = select_action(state)

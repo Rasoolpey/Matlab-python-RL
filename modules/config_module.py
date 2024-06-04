@@ -15,7 +15,7 @@ class Config:
     tau = 0.001
     num_episodes = 20000
     runtime = 1
-    action_duration = 50 # Hold action for 2000 steps
+    action_duration = 1 # Hold action for 2000 steps
     Vinit = 0
     Iinit = 0
     duty_step = np.linspace(0, 1, 201)
@@ -38,7 +38,8 @@ class Config:
 
     buffer_capacity = len(ips) #1000000
     non_zero_ratio=0
-    training_batch_size = len(ips)
+    batch_coefficient = 10
+    training_batch_size = batch_coefficient*len(ips)
 
     state_dim = 4
     action_dim = 1
