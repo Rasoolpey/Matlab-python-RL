@@ -22,8 +22,8 @@ action_duration = config.action_duration
 def run_simulations(model, ips_str):
     print("Starting MATLAB engine and running simulations...")
     eng = matlab.engine.start_matlab()
-    eng.cd("/home/pvm8318/Documents/Python/Modular")
-    eng.addpath("/home/pvm8318/Documents/Python/Modular")
+    eng.cd("/home/pvm8318/Documents/Matlab-python-RL")
+    eng.addpath("/home/pvm8318/Documents/Matlab-python-RL")
     print(f"Running run_simulations with model: {model} and ips: {ips_str}")
     eng.run_simulations(model, ips_str, nargout=0)
     eng.quit()

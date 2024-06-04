@@ -144,7 +144,7 @@ def select_action(state, noise_scale=0.1):
         action = np.clip(action + noise_scale * np.random.randn(action_dim), 0, 1)
 
     # Decay epsilon
-    epsilon = max(epsilon_min, epsilon * epsilon_decay)
+    # epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
     return action.item()
 
