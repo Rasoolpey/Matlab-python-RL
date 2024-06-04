@@ -26,6 +26,8 @@ state_dim = config.state_dim
 action_dim = config.action_dim
 max_action = config.max_action
 buffer_capacity = config.buffer_capacity
+training_batch_size = config.training_batch_size
+non_zero_ratio = config.non_zero_ratio
 
 
 print(f'using device:', device)
@@ -93,11 +95,10 @@ def soft_update(target, source, tau):
 # Training DDPG model
 
 
-def train_model(replay_buffer, batch_size=64, non_zero_ratio=0.8, csv_file="actions_log.csv", device=device):
+def train_model(replay_buffer, batch_size=training_batch_size, non_zero_ratio=non_zero_ratio, device=device):
     if len(replay_buffer) < batch_size:
         return
     states, actions, rewards, next_states, dones = replay_buffer.sample(batch_size, non_zero_ratio)
-    # print(f"Sampled states shape: {states.shape}, Sampled next states shape: {next_states.shape}")
     states = torch.FloatTensor(states).to(device)
     next_states = torch.FloatTensor(next_states).to(device)
     actions = torch.FloatTensor(actions).unsqueeze(1).to(device)
@@ -164,9 +165,7 @@ def select_action(state, ou_noise, noise_scale=0.1, epsilon_decay=0.995, epsilon
 #     return action.item()
 
 
-def train_network(
-    replay_buffer, lock, batch_size=512, terminate_event=None, device=device, non_zero_ratio=0.8
-):
+def train_network(replay_buffer, lock, batch_size=training_batch_size, terminate_event=None, non_zero_ratio=non_zero_ratio, device=device):
     if terminate_event is not None and terminate_event.is_set():
         print("Training skipped because terminate event is set.")
     else:

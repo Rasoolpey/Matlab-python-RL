@@ -36,10 +36,12 @@ class Config:
 
     ips_str = ",".join(ips) # Join IP addresses into a single string
 
-    buffer_capacity = len(ips) #1000000
+    
     non_zero_ratio=0
     batch_coefficient = 10
     training_batch_size = batch_coefficient*len(ips)
+    training_itteration = batch_coefficient*action_duration
+    buffer_capacity = batch_coefficient*len(ips) #1000000
 
     state_dim = 4
     action_dim = 1

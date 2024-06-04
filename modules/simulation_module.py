@@ -17,7 +17,7 @@ Iinit = config.Iinit
 Vref = config.Vref
 device = config.device
 action_duration = config.action_duration
-batch_coefficient = config.batch_coefficient
+training_itteration = config.training_itteration
 ou_noise = config.ou_noise
 
 
@@ -42,7 +42,7 @@ def run_simulations(model, ips_str):
 # Function to run a simulation episode
 
 
-def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, batch_coefficient=batch_coefficient):
+def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, action_duration=action_duration , training_itteration=training_itteration):
     print(f"Using established connection to {ip}:{TCP_PORT}")
 
     # Reset the environment and get the initial state
@@ -70,11 +70,6 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, batc
             V, IL, Time = receive_data(conn)
             next_state = np.array([V, IL])
             dev_state = next_state - prev_state[:2]
-            # if iteration % 10 == 0:
-            #     t.append(Time)
-            #     Vo.append(V)
-            #     rewardval.append(action)
-            # Update the state to include rate of change
             state = np.concatenate([next_state, dev_state])
 
             t.append(Time)
@@ -98,21 +93,9 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, batc
             replay_buffer.push(prev_state, action, reward, state, False)
             
         prev_state = state
-        # if iteration % 200 == 0:
-        #     pause_event.clear()  # Signal to pause
-        #     train_event.wait()  # Wait for the training to be done
-        #     pause_event.set()  # Signal to resume
-        # pause_event.clear()  # Signal to pause
-        # train_event.wait()  # Wait for the training to be done
-        # pause_event.set()  # Signal to resume
-        # print(f"Completed iteration {iteration} for IP {ip}")
-        if iteration % batch_coefficient == 0:
+        if iteration % training_itteration == 0:
             barrier.wait()
-        # print(f"Continuing to next iteration for IP {ip}")
-        # Select a new action after holding the previous one for 1000 steps
-        # action = select_action(state)
         action = select_action(state, ou_noise)
-        # print(f"Selected new action: {action}")
 
     conn.close()
     print(f"Completed episode {episode} for IP {ip}")
