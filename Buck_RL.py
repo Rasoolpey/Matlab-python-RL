@@ -1,4 +1,4 @@
-
+import torch
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Barrier, Lock
@@ -8,7 +8,7 @@ from modules.decision_evaluation_module import DoneChecker
 from modules.plotting_module import plot_data
 from modules.tcp_module import TCP_PORT, websocket
 from modules.simulation_module import run_simulations, run_simulation_episode
-from modules.rl_training_utils import ReplayBuffer, train_network
+from modules.rl_training_utils import ReplayBuffer, train_network, actor, critic
 
 
 config = Config()
@@ -17,6 +17,7 @@ Vref = config.Vref
 ips = config.ips
 ips_str = config.ips_str
 device = config.device
+save_path = config.save_path
 training_batch_size = config.training_batch_size
 non_zero_ratio = config.non_zero_ratio
 lock = Lock()
@@ -88,6 +89,10 @@ if __name__ == "__main__":
                     best_duty_cycle = duty_cycle
                     best_rewardval = rewardval
                     episode = Episode
+                if total_reward > -1500:
+                    torch.save(actor.state_dict(), save_path + f"{total_reward}, episode : {Episode},  actor.pth")
+                    torch.save(critic.state_dict(), save_path + f"{total_reward}, episode : {Episode}, critic.pth")
+
         # with ThreadPoolExecutor(max_workers=len(ips)) as executor:
         #     # Submit tasks to the executor for each IP
         #     futures = {}

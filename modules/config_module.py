@@ -9,9 +9,10 @@ class Config:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     DISCOUNT = 0.99
     LEARNING_RATE = 0.001
-    epsilon = 0.0  # Initial exploration probability
+    epsilon = 1.0  # Initial exploration probability
     epsilon_min = 0.01  # Minimum exploration probability
     epsilon_decay = 0.995  # Decay rate for exploration probability
+    episode_decay = 0.995
     tau = 0.001
     num_episodes = 20000
     runtime = 1
@@ -30,8 +31,6 @@ class Config:
     "127.0.0.105",
     "127.0.0.106",
     "127.0.0.107",
-    "127.0.0.108",
-    "127.0.0.109",
     ]
 
     ips_str = ",".join(ips) # Join IP addresses into a single string
@@ -59,3 +58,5 @@ class Config:
     # Optimizers
     actor_optimizer = optim.Adam(actor.parameters(), lr=LEARNING_RATE)
     critic_optimizer = optim.Adam(critic.parameters(), lr=LEARNING_RATE)
+
+    save_path = "models/"

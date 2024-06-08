@@ -17,7 +17,7 @@ def calculate_convergence_reward(current_deviation, prev_deviation):
 def calculate_time_reward(t, max_time):
     return -t / max_time
 
-def composite_reward(Vref, x, u, prev_u, prev_deviation, t, max_time):
+def composite_reward(Vref, x, u, prev_u, prev_deviation, t, max_time, done_checker):
     current_deviation = abs(x[0] - Vref)
     stability = calculate_stability_reward(Vref,x)
     efficiency = calculate_efficiency_reward(u, prev_u)
@@ -35,7 +35,10 @@ def composite_reward(Vref, x, u, prev_u, prev_deviation, t, max_time):
         + weight_convergence * convergence
         + weight_time * time_penalty
     )
- # plt.savefig(f"plots/episode_number_{episode}.png", dpi=600)
+
+    if done_checker.isdone(x, t):
+        total_reward += 100
+
     return total_reward, current_deviation
 
 # Done checking class

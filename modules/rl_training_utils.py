@@ -128,6 +128,10 @@ def train_model(replay_buffer, batch_size=training_batch_size, non_zero_ratio=no
     soft_update(critic_target, critic, tau)
     replay_buffer.clear()
 
+def end_of_episode():
+    global epsilon, episode, episode_decay
+    epsilon *= episode_decay
+    episode += 1
 
 # Select action with exploration noise
 def select_action(state, ou_noise, noise_scale=0.1, epsilon_decay=0.995, epsilon_min=0.01):

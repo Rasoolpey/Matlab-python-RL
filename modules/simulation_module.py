@@ -2,7 +2,7 @@ import matlab.engine
 import numpy as np
 import scipy.io
 from modules.tcp_module import receive_data, send_data, TCP_PORT
-from modules.decision_evaluation_module import composite_reward
+from modules.decision_evaluation_module import composite_reward, DoneChecker
 from modules.config_module import Config
 from modules.rl_training_utils import select_action
 
@@ -19,6 +19,7 @@ device = config.device
 action_duration = config.action_duration
 training_itteration = config.training_itteration
 ou_noise = config.ou_noise
+done_checker = DoneChecker(Vref)
 
 
 def run_simulations(model, ips_str):
@@ -42,7 +43,7 @@ def run_simulations(model, ips_str):
 # Function to run a simulation episode
 
 
-def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, action_duration=action_duration , training_itteration=training_itteration):
+def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, action_duration=action_duration , training_itteration=training_itteration, done_checker=done_checker, ou_noise=ou_noise, Vref=Vref, Vinit=Vinit, Iinit=Iinit, runtime=runtime):
     print(f"Using established connection to {ip}:{TCP_PORT}")
 
     # Reset the environment and get the initial state
@@ -61,7 +62,7 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, acti
     rewardval = []
     duty_cycle = []
     t = []
-    iteration = 0
+    iteration = 0                 
 
 
     while time < runtime:
@@ -76,7 +77,7 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, acti
             Vo.append(V)
             duty_cycle.append(action)
             reward, current_deviation = composite_reward(
-            Vref,next_state, action, prev_u, prev_deviation, time, runtime)
+            Vref,next_state, action, prev_u, prev_deviation, time, runtime, done_checker)
             rewardval.append(reward)
             prev_deviation = current_deviation
             prev_u = action
@@ -84,7 +85,7 @@ def run_simulation_episode(conn, ip, replay_buffer, episode, lock, barrier, acti
             iteration += 1
 
         reward, current_deviation = composite_reward(
-            Vref,next_state, action, prev_u_step, prev_dev_step, time, runtime
+            Vref,next_state, action, prev_u_step, prev_dev_step, time, runtime, done_checker
         )
         prev_dev_step = current_deviation
         prev_u_step = action
