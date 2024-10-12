@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this repo, please cite it as below."
+authors:
+- family-name: "Peykarporsan"
+  given-name: "Rasool"
+  orcid: "https://orcid.org/0009-0006-5237-3847"
+title: "PHD student"
+version: 0.0.0
+doi: ""
+date-released: 2024-05-10
+url: "https://github.com/Rasoolpey/Matlab-python-RL"
